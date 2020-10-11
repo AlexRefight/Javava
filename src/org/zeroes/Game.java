@@ -10,6 +10,7 @@ import java.util.*;
     3a. fix input exceptions (try/catch)
     4. rewrite while() loop in a generic way
     5. create Android app with GUI
+    learn how to work with IDE
  */
 public class Game {
     private Scanner turn = new Scanner(System.in);
