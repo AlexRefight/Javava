@@ -7,9 +7,7 @@ import java.util.*;
     1. fix canContinue()
     2. rewrite makeTurn to play for win
     3. rewrite makeTurn to avoid loosing
-    3a. fix input exceptions (try/catch)
     4. rewrite while() loop in a generic way
-    5. create Android app with GUI
  */
 public class Game {
     private Scanner turn = new Scanner(System.in);
@@ -27,15 +25,66 @@ public class Game {
         return new Coords(row, col);
     }
 
+//    private Coords makeTurn() {
+//        var emptyCells = new ArrayList<Cell>();
+//        for (Triplet t : this.field.getTriplets()) {
+//            for (Cell c : t.cells()) {
+//                if (c.state == Field.State.EMPTY) {
+//                    emptyCells.add(c);
+//                }
+//            }
+//        }
+//        Collections.shuffle(emptyCells);
+//        return emptyCells.get(0).coords;
+//    }
+
     private Coords makeTurn() {
+        int currentBestRow = 0;
+        int currentBestCol = 0;
+        Coords oneElementPresent = null;
+
+        Field.State sameInTriplet = Field.State.EMPTY;
+
         var emptyCells = new ArrayList<Cell>();
         for (Triplet t : this.field.getTriplets()) {
+
+            if (t.a.state == t.b.state && t.a.state != Field.State.EMPTY && t.c.state == Field.State.EMPTY) {
+                sameInTriplet = t.a.state;
+                currentBestRow = t.c.coords.row;
+                currentBestCol = t.c.coords.col;
+                if(sameInTriplet == Field.State.ZERO) break;
+            } else if(t.a.state == t.c.state && t.a.state != Field.State.EMPTY && t.b.state == Field.State.EMPTY) {
+                sameInTriplet = t.a.state;
+                currentBestRow = t.b.coords.row;
+                currentBestCol = t.b.coords.col;
+                if(sameInTriplet == Field.State.ZERO) break;
+            } else if (t.b.state == t.c.state && t.b.state != Field.State.EMPTY && t.a.state == Field.State.EMPTY) {
+                sameInTriplet = t.b.state;
+                currentBestRow = t.a.coords.row;
+                currentBestCol = t.a.coords.col;
+                if(sameInTriplet == Field.State.ZERO) break;
+            }
+
+            if (oneElementPresent == null) {
+                oneElementPresent = t.hasOneZeroElement();
+            }
+
             for (Cell c : t.cells()) {
                 if (c.state == Field.State.EMPTY) {
                     emptyCells.add(c);
                 }
             }
         }
+
+        switch (sameInTriplet) {
+            case ZERO: return new Coords(currentBestRow, currentBestCol);
+            case CROSS: return new Coords(currentBestRow, currentBestCol);
+        }
+
+        if (oneElementPresent != null){
+            return new Coords(oneElementPresent.row, oneElementPresent.col);
+        }
+
         Collections.shuffle(emptyCells);
         return emptyCells.get(0).coords;
     }
@@ -51,12 +100,12 @@ public class Game {
     }
 
     private boolean canContinue() {
-        // X
-        // [X] [ ] [O]
+
         for (Triplet t : this.field.getTriplets()) {
             boolean samePlayer = true;
             var ref = Field.State.EMPTY;
             for (Cell c : t.cells()) {
+
                 if (c.state != ref && c.state != Field.State.EMPTY) {
                     if (ref != Field.State.EMPTY) {
                         samePlayer = false;
@@ -66,7 +115,6 @@ public class Game {
                 }
             }
             if (samePlayer) {
-                //System.out.println("Free triplet: " + t);
                 return true;
             }
         }
@@ -110,7 +158,7 @@ public class Game {
                 System.out.println("You are looooser!");
             }
         } else {
-            System.out.println("'Druzhba' saw won!");
+            System.out.println("'Druzhba' won!");
         }
     }
 }

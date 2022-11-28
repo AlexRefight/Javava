@@ -64,6 +64,7 @@ public class Field {
         return data[c.row][c.col] == EMPTY;
     }
 
+
     public void print(PrintStream out) {
         out.println("  A B C");
         int rowNo = 1;
